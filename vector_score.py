@@ -69,7 +69,6 @@ def chroma_basics ():
             )
 
 
-
 def similarity_search_on_basis_of_scores ():
     with tempfile.TemporaryDirectory() as tempdir:
 
@@ -91,6 +90,33 @@ def similarity_search_on_basis_of_scores ():
             print("-" * 50)
 
 
+def metadata_filtering():
+    with tempfile.TemporaryDirectory() as tempdir:
+        # create vector store from document
+
+        vectorStore = Chroma.from_documents(
+            documents=SAMPLE_DOCS, embedding=embedding_model, persist_directory= tempdir
+        )
+
+        query = "What database are available?"
+
+        # without metadata filtering
+
+        filter_criteria = {"topic": "database"}
+        filtered_results = vectorStore.similarity_search(
+            query, k=5, filter=filter_criteria
+        )
+
+        print(f"\nResult with metadata filtering for query '{query}':")
+        for i, doc in enumerate(filtered_results):
+            print(
+                f"Result {i+1}: {doc.page_content} (Source: {doc.metadata['source']})"
+            )
+
+
+
+
 if __name__ == "__main__":
-    chroma_basics()
-    similarity_search_on_basis_of_scores()
+    # chroma_basics()
+    # similarity_search_on_basis_of_scores()
+    metadata_filtering()
