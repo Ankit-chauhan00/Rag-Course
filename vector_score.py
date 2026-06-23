@@ -60,6 +60,29 @@ def chroma_basics ():
         # perform similarity search 
 
         query = "What is LangChain?"
+        results = vectorstore.similarity_search(query, k=2)
+
+        print(f"Top 2 result for query '{query}' :")
+        for i, doc in enumerate(results):
+            print(
+                f"Result {i+1}: {doc.page_content} (Source: {doc.metadata['source']})"
+            )
+
+
+
+def similarity_search_on_basis_of_scores ():
+    with tempfile.TemporaryDirectory() as tempdir:
+
+        # create a vector store from document
+        vectorstore = Chroma.from_documents(
+            documents=SAMPLE_DOCS, embedding=embedding_model, persist_directory=tempdir
+        )
+
+        print(f"Vector store created {vectorstore._collection.count()} documnent are persisted.")
+
+        # perform similarity search 
+
+        query = "What is LangChain?"
         results = vectorstore.similarity_search_with_score(query, k=2)
 
         for doc, score in results:
@@ -67,5 +90,7 @@ def chroma_basics ():
             print(doc.page_content)
             print("-" * 50)
 
+
 if __name__ == "__main__":
     chroma_basics()
+    similarity_search_on_basis_of_scores()
