@@ -101,6 +101,33 @@ def recursive_splitter():
     print(f"Chunk Size: {[len(c) for c in chunks]}")
     print(f"\nFirst chunk Preview: \n{chunks[0][:200]}...")
 
+def overlap_importance():
+    text = "The quick brown foc jumps over the lazy dog." * 10
 
+    # without overlap splitting
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size = 50,
+        chunk_overlap = 0,
+    )
+
+    without_overlap_chunks = splitter.split_text(text)
+
+    splitter_withOverlap = RecursiveCharacterTextSplitter(
+        chunk_size = 50,
+        chunk_overlap = 20,
+    )
+
+    with_overlap = splitter_withOverlap.split_text(text)
+
+    print("With out OverLap:")
+    print(f"Chunk 1 end: ...{without_overlap_chunks[0][-20:]}")
+    print(f"Chunk 2 start: {without_overlap_chunks[1][:20]}")
+
+
+    print("\nWith overlap: ")
+    print(f"Chunk 1 end: ...{with_overlap[0][-20:]}")
+    print(f"chunk 2 Start: {with_overlap[1][:20]}...")
+ 
 if __name__ == "__main__":
     recursive_splitter()
+    overlap_importance()
