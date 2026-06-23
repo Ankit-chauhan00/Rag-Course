@@ -60,13 +60,12 @@ def chroma_basics ():
         # perform similarity search 
 
         query = "What is LangChain?"
-        result = vectorstore.similarity_search(query, k=2)
+        results = vectorstore.similarity_search_with_score(query, k=2)
 
-        print(f"Top 2 result for query '{query}' :")
-        for i, doc in enumerate(result):
-            print(
-                f"Result {i+1}: {doc.page_content} (Source: {doc.metadata['source']})"
-            )
+        for doc, score in results:
+            print(f"Score: {score}")
+            print(doc.page_content)
+            print("-" * 50)
 
 if __name__ == "__main__":
     chroma_basics()
