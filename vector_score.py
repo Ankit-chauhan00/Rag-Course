@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from langchain_chroma import Chroma
 from langchain_google_genai import (GoogleGenerativeAIEmbeddings)
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.documents import Document
@@ -6,7 +7,7 @@ import tempfile
 
 load_dotenv()
 
-embedding_model = GoogleGenerativeAIEmbeddings(model="gemini-2.5-flash")
+embedding_model = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-2")
 
 
 # Sample documents
@@ -45,3 +46,27 @@ SAMPLE_DOCS = [
     ),
 ]
 
+
+def chroma_basics ():
+    with tempfile.TemporaryDirectory() as tempdir:
+
+        # create a vector store from document
+        vectorstore = Chroma.from_documents(
+            documents=SAMPLE_DOCS, embedding=embedding_model, persist_directory=tempdir
+        )
+
+        print(f"Vector store created {vectorstore._collection.count()} documnent are persisted.")
+
+        # perform similarity search 
+
+        query = "What is LangChain?"
+        result = vectorstore.similarity_search(query, k=2)
+
+        print(f"Top 2 result for query '{query}' :")
+        for i, doc in enumerate(result):
+            print(
+                f"Result {i+1}: {doc.page_content} (Source: {doc.metadata['source']})"
+            )
+
+if __name__ == "__main__":
+    chroma_basics()
