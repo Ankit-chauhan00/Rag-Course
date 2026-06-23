@@ -1,14 +1,14 @@
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_google_genai import ( ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings)
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 load_dotenv()
 
 texts = [
     "Paris is the capital of France",
     "Delhi is the capital of India",
-    "Tokyo is the capital of Japan"
-    ]
+    "Tokyo is the capital of Japan",
+]
 
 
 def main():
@@ -18,16 +18,12 @@ def main():
 
     print(response.content[:100])
 
-    embeddings = GoogleGenerativeAIEmbeddings(
-        model="models/gemini-embedding-2"
-    )
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-2")
 
     vector = embeddings.embed_query(response.content)
 
     print(f"Vecton Length: {len(vector)}")
-    print(vector[:10]) 
-
-    
+    print(vector[:10])
 
 
 if __name__ == "__main__":

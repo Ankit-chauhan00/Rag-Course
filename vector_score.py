@@ -1,7 +1,6 @@
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
-from langchain_google_genai import (GoogleGenerativeAIEmbeddings)
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_core.documents import Document
 import tempfile
 
@@ -47,17 +46,18 @@ SAMPLE_DOCS = [
 ]
 
 
-def chroma_basics ():
+def chroma_basics():
     with tempfile.TemporaryDirectory() as tempdir:
-
         # create a vector store from document
         vectorstore = Chroma.from_documents(
             documents=SAMPLE_DOCS, embedding=embedding_model, persist_directory=tempdir
         )
 
-        print(f"Vector store created {vectorstore._collection.count()} documnent are persisted.")
+        print(
+            f"Vector store created {vectorstore._collection.count()} documnent are persisted."
+        )
 
-        # perform similarity search 
+        # perform similarity search
 
         query = "What is LangChain?"
         results = vectorstore.similarity_search(query, k=2)
@@ -65,21 +65,22 @@ def chroma_basics ():
         print(f"Top 2 result for query '{query}' :")
         for i, doc in enumerate(results):
             print(
-                f"Result {i+1}: {doc.page_content} (Source: {doc.metadata['source']})"
+                f"Result {i + 1}: {doc.page_content} (Source: {doc.metadata['source']})"
             )
 
 
-def similarity_search_on_basis_of_scores ():
+def similarity_search_on_basis_of_scores():
     with tempfile.TemporaryDirectory() as tempdir:
-
         # create a vector store from document
         vectorstore = Chroma.from_documents(
             documents=SAMPLE_DOCS, embedding=embedding_model, persist_directory=tempdir
         )
 
-        print(f"Vector store created {vectorstore._collection.count()} documnent are persisted.")
+        print(
+            f"Vector store created {vectorstore._collection.count()} documnent are persisted."
+        )
 
-        # perform similarity search 
+        # perform similarity search
 
         query = "What is LangChain?"
         results = vectorstore.similarity_search_with_score(query, k=2)
@@ -95,7 +96,7 @@ def metadata_filtering():
         # create vector store from document
 
         vectorStore = Chroma.from_documents(
-            documents=SAMPLE_DOCS, embedding=embedding_model, persist_directory= tempdir
+            documents=SAMPLE_DOCS, embedding=embedding_model, persist_directory=tempdir
         )
 
         query = "What database are available?"
@@ -110,10 +111,8 @@ def metadata_filtering():
         print(f"\nResult with metadata filtering for query '{query}':")
         for i, doc in enumerate(filtered_results):
             print(
-                f"Result {i+1}: {doc.page_content} (Source: {doc.metadata['source']})"
+                f"Result {i + 1}: {doc.page_content} (Source: {doc.metadata['source']})"
             )
-
-
 
 
 if __name__ == "__main__":
