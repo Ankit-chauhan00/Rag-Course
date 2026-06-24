@@ -1,12 +1,14 @@
+import numpy as np
 from dotenv import load_dotenv
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-import numpy as np
+
 load_dotenv()
 
 embedding = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-2")
 
+
 def basic_embeddings():
-    #single text
+    # single text
     text = "What is Machine Learning?"
     single_embeddings = embedding.embed_query(text)
 
@@ -20,15 +22,67 @@ def batch_embeddings():
     text = [
         "What is Machine Learning?",
         "Explain the concept of overfitting in ML.",
-        "How does neural network works?"
+        "How does neural network works?",
     ]
 
     batch_embedding = embedding.embed_documents(text)
     for i, emb in enumerate(batch_embedding):
-        print(f"Text {i+1} - Vector dimensions: {len(emb)}")
-        print(f"Text {i+1} - First 5 values: {emb[:5]}")
-        print(f"Text {i+1} - Vector norm: {np.linalg.norm(emb):.4f}")
+        print(f"Text {i + 1} - Vector dimensions: {len(emb)}")
+        print(f"Text {i + 1} - First 5 values: {emb[:5]}")
+        print(f"Text {i + 1} - Vector norm: {np.linalg.norm(emb):.4f}")
+
+
+"""
+result shows that  which is the highest score is the nearest to the semantic meaning of the query
+query = "What programming languages exist?"
+
+
+0.7304: Python is a programming language
+0.6464: JavaScript is used for web development
+0.6016: Deep learning uses neural networks
+0.5798: Machine learning enables AI applications
+0.5762: Cats are popular pets
+
+"""
+def similarity_search():
+
+    docs = [
+        "Python is a programming language",
+        "JavaScript is used for web development",
+        "Machine learning enables AI applications",
+        "Deep learning uses neural networks",
+        "Cats are popular pets",
+    ]
+
+    query = "What programming languages exist?"
+
+    embedded_docs = embedding.embed_documents(docs)
+    embedded_query = embedding.embed_query(query)
+
+    def cosine_similarity(vec1, vec2):
+        return np.dot(vec1, vec2) / (
+            np.linalg.norm(vec1) * np.linalg.norm(vec2)
+        )
+
+    similarities = [
+        cosine_similarity(embedded_query, doc_vec)
+        for doc_vec in embedded_docs
+    ]
+
+    ranked_docs = sorted(
+        zip(docs, similarities),
+        key=lambda x: x[1],
+        reverse=True
+    )
+
+    print(f"Query: {query}\n")
+    print("Ranked by Similarity:")
+
+    for doc, score in ranked_docs:
+        print(f"{score:.4f}: {doc}")
+
 
 if __name__ == "__main__":
     # basic_embeddings()
-    batch_embeddings()
+    # batch_embeddings()
+    similarity_search()
