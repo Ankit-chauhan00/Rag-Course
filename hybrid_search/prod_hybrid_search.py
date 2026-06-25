@@ -168,4 +168,12 @@ vector_retriver = vector_store.as_retriever(
     search_kwargs = {'k': 3} # Return top 3 
 )
 
-print(f"Vector retriver redy")
+print(f"Vector retriver ready")
+
+# BM25 retriver works on a raw text 
+bm25_retriver = BM25Retriever.from_documents(
+    documents,
+    k=3 # return top three
+)
+
+
