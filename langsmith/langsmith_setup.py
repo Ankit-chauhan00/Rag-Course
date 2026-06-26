@@ -17,3 +17,22 @@ llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
 
 # enable Tracing environment variables
 os.environ["LANGSMITH_TRACING"] = "true"
+
+
+@traceable(name="basic_chaining")
+def demo_basic_traning():
+    """Basic Langsmmith Tracing"""
+
+    prompt = ChatPromptTemplate.from_template(
+        "Explain {topic} in one sentense"
+    )
+
+    chain = prompt | llm | StrOutputParser()
+
+    print("Basic Tracing Demo:\n")
+    print("Running chain with Langsmith tracing enabled")
+
+    result  = chain.invoke({"topic": "Machine Learning"})
+
+    print(f"Result : {result}")
+    print("\nCheck Langshith Dashboard for trace Details.")
