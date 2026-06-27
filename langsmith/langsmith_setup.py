@@ -14,7 +14,7 @@ from langsmith import traceable
 
 load_dotenv()
 
-llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
+
 
 # enable Tracing environment variables
 os.environ["LANGSMITH_TRACING"] = "true"
@@ -23,7 +23,7 @@ os.environ["LANGSMITH_TRACING"] = "true"
 @traceable(name="basic_chaining")
 def demo_basic_traning():
     """Basic Langsmmith Tracing"""
-
+    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
     prompt = ChatPromptTemplate.from_template("Explain {topic} in one sentense")
 
     chain = prompt | llm | StrOutputParser()
@@ -46,8 +46,8 @@ def demo_named_runs():
     """
 
     prompt = ChatPromptTemplate.from_template("Summerize: {text}")
-
-    chain = prompt | llm | StrOutputParser
+    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
+    chain = prompt | llm | StrOutputParser()
 
     print("\nNamed Runs Demo:\n")
 
@@ -59,13 +59,14 @@ def demo_named_runs():
     print("Run tagged with 'production', 'summarization'")
 
 
-
+@traceable(name="trace_with_metadata_demo", tags=["metadata", "filtering"])
 def demo_trace_with_metadata(user_id: str, request_type: str):
     """
     Add metadata to traces for filtering.
     """
 
     # metadata is automatically captured
+    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
 
     result = llm.invoke(f"Hello from user : {user_id}")
 
@@ -73,3 +74,6 @@ def demo_trace_with_metadata(user_id: str, request_type: str):
 
 if __name__ == "__main__":
     demo_basic_traning()
+    demo_named_runs()
+    demo_trace_with_metadata(user_id="user_123", request_type="greetings")
+
