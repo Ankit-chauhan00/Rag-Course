@@ -23,6 +23,7 @@ dependencies = [
     "pypdf>=6.13.3",
     "python-dotenv>=1.2.2",
     "rank-bm25>=0.2.2",
+    "semantic-text-splitter>=0.32.0",
     "typing>=3.10.0.0",
 ]
 
