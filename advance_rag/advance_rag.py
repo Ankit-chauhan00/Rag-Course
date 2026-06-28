@@ -112,5 +112,9 @@ LangSmith provides observability for LangChain/LangGraph applications, offering 
         print("\n")
 
 
+
+def demo_contextual_compression():
+    """Contextual Compression extracts only revelant parts."""
+       
 if __name__ == "__main__":
     demo_parent_document()
