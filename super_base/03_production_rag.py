@@ -24,3 +24,35 @@ class Config:
     embedding_model: str = "models/gemini-embedding-2"
     chat_model : str = "gemini-2.5-flash"
 
+    # Search settings
+    default_k: int = 5
+    min_similarity: float  = 0.5
+
+
+
+class RAGservice:
+    """
+    Production redy rag service with PGvector (PostgreSQL + Vector)
+    """
+
+    def __init__(self, config: Optional[Config] = None):
+        self.config = config or Config()
+        self._vectorstore = None
+        self._chain = None
+
+    @property
+    def Vectorstore(self)-> PGVector:
+        """Lazy initialization of vectorstore"""
+        if self._vectorstore is None:
+            embeddings = GoogleGenerativeAIEmbeddings(model=self.config.embedding_model)
+            self._vectorstore = PGVector(
+                embeddings=embeddings,
+                collection_name=self.config.collection_name,
+                connection=self.config.database_url,
+                use_jsonb=True
+            )
+        return self._vectorstore
+
+    @property
+    def chain()
+        
