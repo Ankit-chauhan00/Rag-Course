@@ -1,6 +1,10 @@
+import hashlib
+from typing import Optional
+
 from dotenv import load_dotenv
+from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+
 from langsmith import traceable
-from langchain_google_genai import ChatGoogleGenerativeAI
 
 load_dotenv()
 
@@ -38,7 +42,6 @@ class TokenBudget:
         }
 
 
-
 class BudgetedLLM:
     """LLM with token budgeting."""
 
@@ -70,7 +73,6 @@ class BudgetedLLM:
         return self.budget.get_stats()
 
 
-
 def demo_token_budgeting():
     """Demonstrate token budgeting."""
 
@@ -93,7 +95,113 @@ def demo_token_budgeting():
     print(f"\nUsage: {llm.get_stats()}")
 
 
+# === Semantic caching ===
+
+
+class SemanticCache:
+    """Cache Response with Semantic similarity matching."""
+
+    def __init__(self, similarity_threshold: float = 0.9):
+        self.cache = {}
+        self.threshold = similarity_threshold
+        self.embedder = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-2")
+
+    def _hash_query(self, query: str) -> str:
+        """Create hash of normalized query."""
+        normalized = query.lower().strip()
+        return hashlib.md5(normalized.encode()).hexdigest()
+
+    def get(self, query: str) -> Optional[str]:
+        """Get Cached Response if similar query exists"""
+        query_hash = self._hash_query(query)
+
+        # Exact Match
+        if query_hash in self.cache:
+            return self.cache[query_hash]["response"]
+
+        # could add embedding based similarity here
+        # for demo just use exact match
+
+        return None
+
+    def set(self, query: str, response: str):
+        """Cache a Response."""
+        query_hash = self._hash_query(query)
+        self.cache[query_hash] = {
+            "query": query,
+            "response": response,
+        }
+
+    def stats(self) -> dict:
+        return {"cached_queries": len(self.cache)}
+
+
+class CachedLLM:
+    """LLM wrapper with caching."""
+
+    def __init__(self):
+        self.llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
+        self.cache = SemanticCache()
+        self.cache_hits = 0
+        self.cache_misses = 0
+
+    @traceable(name="cached_invoke")
+    def invoke(self, query: str) -> tuple[str, bool]:
+        """
+        Invoke with caching.
+        Returns: (response, from_cache)
+        """
+        # Check cache
+        cached = self.cache.get(query)
+        if cached:
+            self.cache_hits += 1
+            return cached, True
+
+        # Call LLM
+        self.cache_misses += 1
+        response = self.llm.invoke(query)
+        result = response.content
+
+        # Cache result
+        self.cache.set(query, result)
+
+        return result, False
+
+    def get_stats(self) -> dict:
+        total = self.cache_hits + self.cache_misses
+        hit_rate = self.cache_hits / total if total > 0 else 0
+        return {
+            "hits": self.cache_hits,
+            "misses": self.cache_misses,
+            "hit_rate": f"{hit_rate:.1%}",
+        }
+
+    
+def demo_caching():
+    """Demonstrate caching."""
+
+    llm = CachedLLM()
+
+    queries = [
+        "What is Python?",
+    ]
+
+    print("\nCaching Demo:\n")
+
+    for query in queries:
+        result, from_cache = llm.invoke(query)
+        source = "CACHE" if from_cache else "LLM"
+        print(f"[{source}] {query} -> {result[:30]}...")
+
+    print(f"\nStats: {llm.get_stats()}")
+
+
+# production version would be :
+# 1. Embed the query into vector
+# 2. Search the cache by vector similarity 
+# 3. Return if similarity > threshold (eg., 0.95)
+
 
 
 if __name__ == "__main__":
-    demo_token_budgeting()
+    demo_caching()
